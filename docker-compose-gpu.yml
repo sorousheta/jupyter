@@ -1,0 +1,32 @@
+services:
+  jupyter:
+    image: jupyter/datascience-notebook:latest
+    container_name: jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./jupyter_data:/home/jovyan/work
+      - ./jupyter_config:/home/jovyan/.jupyter
+    environment:
+      - JUPYTER_TOKEN=******
+      - GRANT_SUDO=yes
+      - NVIDIA_VISIBLE_DEVICES=all
+    restart: unless-stopped
+    command: start-notebook.sh --NotebookApp.token='******' --NotebookApp.password=''
+    networks:
+      - jupyter-network
+#    mem_limit: 12g
+#    cpus: 2.0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    runtime: nvidia
+
+networks:
+  jupyter-network:
+    external: true
+    name: monitoring-stack
